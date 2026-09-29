@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101e24">
+  <title>Agility Rush — Human Edition</title>
+  <meta name="description" content="Race human athletes through an agility obstacle course. A free 3D browser game with mobile touch controls.">
+  <meta property="og:title" content="Agility Rush — Human Edition">
+  <meta property="og:description" content="Jump, duck and sprint through the arena. Open the link and play — no installation needed.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://peykos.github.io/agility-rush/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23d6ff69'/%3E%3Cpath d='M17 47 31 15h10l7 32H37l-1-8H24l-3 8zm10-16h8l-2-11z' fill='%23101e24'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="arena" aria-label="3D human agility race"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Agility Rush home"><span class="brand-mark">A<span>↗</span></span><span>AGILITY<span class="brand-light">RUSH</span><small>HUMAN EDITION / BROWSER PLAY</small></span></a>
+    <div id="liveStats" class="live-stats" hidden><div><small>TIME + PENALTIES</small><b id="timer">00.00</b></div><div><small>OBSTACLES</small><b id="cleared">0<span>/10</span></b></div><div><small>POSITION*</small><b id="position">1<span>/4</span></b></div></div>
+    <nav class="toolbar" aria-label="Game options"><button id="cameraBtn" title="Change camera (C)" aria-label="Change camera">CAM <span id="cameraMode">TV</span></button><button id="soundBtn" aria-pressed="false" title="Toggle sound">SOUND OFF</button><button id="pauseBtn" title="Pause (P)" aria-label="Pause game" disabled>Ⅱ</button><button id="fullscreenBtn" title="Fullscreen" aria-label="Fullscreen">⛶</button></nav>
+  </header>
+  <section id="menu" class="menu panel">
+    <div class="eyebrow"><span class="live-dot"></span> THE AGILITY CHALLENGE, REIMAGINED</div>
+    <h1>ALL HUMAN.<br>ALL <em>HUSTLE.</em></h1>
+    <p class="intro">Same obstacles. Different breed.<br>Outrun the field. Make every second count.</p>
+    <div class="course-meta"><span><b>10</b> OBSTACLES</span><span><b>03</b> RIVALS</span><span><b>01</b> WINNER</span></div>
+    <button id="startBtn" class="primary">ENTER THE ARENA <span>↗</span></button>
+    <p class="menu-note">You run automatically. You control the finesse.</p>
+    <div class="howto"><div><span class="keycap">← →</span><span>Weave & steer</span></div><div><span class="keycap">SPACE</span><span>Jump hurdles</span></div><div><span class="keycap">↓</span><span>Hold to duck</span></div><div><span class="keycap">SHIFT</span><span>Hold to sprint</span></div></div>
+    <p class="rules">Miss an obstacle: +3 seconds. Stay centred on ramps.<br>Touch controls appear when you start. Landscape recommended.</p>
+    <div class="personal"><span>YOUR PERSONAL BEST</span><b id="menuBest">—</b><span class="no-account">NO ACCOUNT · NO INSTALL NEEDED</span></div>
+  </section>
+  <aside id="courseCard" class="course-card"><span class="eyebrow">THE CIRCUIT</span><h2>Fast feet.<br>Clean lines.</h2><p>Hurdles / rings / tunnels<br>weave poles / balance ramps</p><div class="course-tag">ORIGINAL COURSE · BABYLON.JS</div></aside>
+  <div id="countdown" class="countdown" hidden aria-live="polite"></div>
+  <div id="notice" class="notice" role="status" hidden></div>
+  <aside id="raceInfo" class="race-info" hidden>
+    <div class="next-card"><small>NEXT OBSTACLE <span id="obstacleIndex">01</span></small><h2 id="obstacleName">Opening hurdle</h2><div><strong id="actionHint">JUMP</strong><span id="distance">12 m</span></div><div class="approach-track"><i id="approach"></i></div></div>
+    <div class="minimap-wrap"><canvas id="minimap" width="180" height="150" aria-label="Live course map"></canvas><div class="map-label">LIVE COURSE <span>● YOU</span></div></div>
+  </aside>
+  <aside id="leaderboard" class="leaderboard" hidden><small>LIVE FIELD <span>DISTANCE ORDER*</span></small><ol id="fieldRows"></ol><p>*Final order uses time + penalties.</p></aside>
+  <div id="bottomHUD" class="bottom-hud" hidden><div class="sprint-meter"><span>SPRINT ENERGY</span><b id="energyPercent">100%</b><div><i id="energyFill"></i></div></div><div class="race-progress"><span id="speed">0.0 m/s</span><div><i id="progressFill"></i></div><span id="faults">0 FAULTS</span></div></div>
+  <div id="controls" class="controls" hidden>
+    <div class="steer-controls"><button id="leftBtn" class="control steer" aria-label="Steer left">←</button><button id="rightBtn" class="control steer" aria-label="Steer right">→</button></div>
+    <div class="action-controls"><button id="sprintBtn" class="control sprint" aria-label="Hold to sprint"><span>↯</span>SPRINT<small>HOLD</small></button><button id="duckBtn" class="control duck" aria-label="Hold to duck"><span>↓</span>DUCK<small>HOLD</small></button><button id="jumpBtn" class="control jump" aria-label="Jump"><span>↑</span>JUMP<small>TAP</small></button></div>
+  </div>
+  <section id="pausePanel" class="modal panel" hidden><div class="eyebrow">TAKE A BREATHER</div><h2>Race paused.</h2><p>The clock is stopped.</p><button id="resumeBtn" class="primary">BACK TO THE RACE →</button><button id="restartPauseBtn" class="secondary">Start a fresh race</button></section>
+  <section id="results" class="modal results panel" hidden><div class="eyebrow" id="resultEyebrow">ACROSS THE LINE</div><h2 id="resultTitle">Finish strong.</h2><div class="finish-time" id="finishTime">00.00<span>s</span></div><p id="resultDetail"></p><ol id="resultsRows" class="results-rows"></ol><p id="waitingNote">The other athletes are still running…</p><button id="againBtn" class="primary">RACE AGAIN <span>↗</span></button><button id="homeBtn" class="secondary">Back to arena</button></section>
+  <div id="fatal" class="fatal" role="alert" hidden><h2>Could not start 3D</h2><p id="fatalText"></p><button onclick="location.reload()">TRY AGAIN</button><p>Open this link in Chrome or Safari with WebGL enabled. Check your Internet connection and reload.</p></div>
+  <footer class="statusline"><span id="status">Loading Babylon.js…</span><span id="footerTip">INSPIRED BY AGILITY. BUILT FOR HUMANS.</span></footer>
+  <script>window.__errors=[];window.addEventListener('error',function(e){window.__errors.push(String(e.message||'Asset failed to load'));var t=document.getElementById('fatalText');t.textContent=window.__errors.join('\n');document.getElementById('fatal').hidden=false;});window.addEventListener('unhandledrejection',function(e){window.__errors.push(String(e.reason));document.getElementById('fatalText').textContent=String(e.reason);document.getElementById('fatal').hidden=false;});</script>
+  <script src="vendor/babylon.js"></script>
+  <script src="core.js"></script>
+  <script src="scene.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
